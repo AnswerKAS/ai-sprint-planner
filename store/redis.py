@@ -60,3 +60,12 @@ def save_agent_result_to_redis(
     redis_key = f"inc_agent:result:{session_id}"
     redis_client.set(redis_key, json.dumps(payload, ensure_ascii=False, indent=2), ex=300)
     return redis_key
+
+
+redis_client = redis.Redis(
+    host="localhost",
+    port=6379,
+    db=0,
+    password="mystrongpassword",
+    decode_responses=True,
+)

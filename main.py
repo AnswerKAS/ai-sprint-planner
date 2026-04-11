@@ -13,7 +13,7 @@ from tasks.loader.excel_loader import load_tasks_from_excel
 
 # Ваш store для create_agent можно оставить, если он нужен агенту
 from langchain_community.storage import RedisStore
-from store.redis import save_agent_result_to_redis, to_jsonable
+from store.redis import save_agent_result_to_redis, to_jsonable, redis_client
 
 
 session_id = None
@@ -46,19 +46,10 @@ if __name__ == "__main__":
     store = RedisStore(redis_url="redis://:mystrongpassword@localhost:6379/0")
 
     # 2) Отдельный обычный Redis-клиент для явной записи результата
-    redis_client = redis.Redis(
-        host="localhost",
-        port=6379,
-        db=0,
-        password="mystrongpassword",
-        decode_responses=True,
-    )
 
     ai_agents_configs = read_config_ai_agents()
 
-    task_list = load_tasks_from_excel(
-        r"C:\Users\anton\Desktop\git\langchain\srpint_ai_agent\sprint_tasks_template_short.xlsx"
-    )
+    task_list = load_tasks_from_excel("sprint_tasks_template_short.xlsx")
     inc_agent = init_inc_agent(ai_agents_configs, task_list, store)
 
     team_name = "SA"
