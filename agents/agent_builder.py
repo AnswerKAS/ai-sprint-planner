@@ -1,6 +1,74 @@
 
 
 
-def creator_agent(config: dict, store=None):
-    from agents.tools.common_tools import create_agent, save_agent_result_to_redis, to_jsonable, redis_client
-    return create_agent(config, store, save_agent_result_to_redis, to_jsonable, redis_client)
+from typing import Any, Callable, Optional
+
+from langchain_community.storage import RedisStore
+
+from agents.inc_agent import AgentContext
+from store.redis import save_agent_result_to_redis
+from tasks.model import SprintTask
+from store.redis import save_agent_result_to_redis, to_jsonable, redis_client
+
+# 1) Store, который Вы передаёте в агент
+
+
+def agent_builder(
+    agent: Callable,
+    *,
+    prompt: str,
+    task_list: list[SprintTask],
+    config: dict,
+    store: Optional[RedisStore] = None,
+    session_id: Optional[str] = None,
+    redis_client: Any = None,
+    team_name: Optional[str] = None,
+    save_to_redis: bool = False,
+    **kwargs,
+) -> dict[str, Any]:
+    
+    agent_name = config.get("name", "agent")
+
+    # 1. Создаём экземпляр агента
+    agent_instance = agent(config, task_list, store, **kwargs)
+
+    # 2. Формируем payload для invoke
+    payload = {
+        "messages": [
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        ]
+    }
+
+    invoke_kwargs = {}
+    if session_id is not None:
+        invoke_kwargs["context"] = AgentContext(session_id=session_id)
+
+    # 3. Вызываем агента
+    result = agent_instance.invoke(payload, **invoke_kwargs)
+
+    # 4. При необходимости сохраняем результат в Redis
+    redis_key = None
+    if save_to_redis:
+        if redis_client is None:
+            raise ValueError("Для save_to_redis=True необходимо передать redis_client")
+        if session_id is None:
+            raise ValueError("Для save_to_redis=True необходимо передать session_id")
+        if team_name is None:
+            raise ValueError("Для save_to_redis=True необходимо передать team_name")
+
+        redis_key = save_agent_result_to_redis(
+            redis_client=redis_client,
+            session_id=session_id,
+            team_name=team_name,
+            result=result,
+            agent_name = agent_name,
+        )
+
+    return {
+        "agent_instance": agent_instance,
+        "result": result,
+        "redis_key": redis_key,
+    }
