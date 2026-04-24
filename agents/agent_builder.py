@@ -1,16 +1,10 @@
-
-
-
 from typing import Any, Callable, Optional
 
 from langchain_community.storage import RedisStore
 
-from agents.inc_agent import AgentContext
+from agents.model import AgentContext
 from store.redis import save_agent_result_to_redis
 from tasks.model import SprintTask
-from store.redis import save_agent_result_to_redis, to_jsonable, redis_client
-
-# 1) Store, который Вы передаёте в агент
 
 
 def agent_builder(
@@ -26,13 +20,9 @@ def agent_builder(
     save_to_redis: bool = False,
     **kwargs,
 ) -> dict[str, Any]:
-    
     agent_name = config.get("name", "agent")
-
-    # 1. Создаём экземпляр агента
     agent_instance = agent(config, task_list, store, **kwargs)
 
-    # 2. Формируем payload для invoke
     payload = {
         "messages": [
             {
@@ -42,14 +32,12 @@ def agent_builder(
         ]
     }
 
-    invoke_kwargs = {}
+    invoke_kwargs: dict[str, Any] = {}
     if session_id is not None:
         invoke_kwargs["context"] = AgentContext(session_id=session_id)
 
-    # 3. Вызываем агента
     result = agent_instance.invoke(payload, **invoke_kwargs)
 
-    # 4. При необходимости сохраняем результат в Redis
     redis_key = None
     if save_to_redis:
         if redis_client is None:
@@ -64,7 +52,7 @@ def agent_builder(
             session_id=session_id,
             team_name=team_name,
             result=result,
-            agent_name = agent_name,
+            agent_name=agent_name,
         )
 
     return {

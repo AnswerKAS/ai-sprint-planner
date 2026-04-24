@@ -1,7 +1,6 @@
 import json
 
 from langchain.tools import tool
-from langchain_community.storage import RedisStore
 from langgraph.prebuilt import ToolRuntime
 
 from tasks.model import SprintTask

@@ -1,29 +1,23 @@
-from typing import Any
-import json
+import logging
+import os
 import uuid
+from typing import Any
 
 import yaml
-import redis
-from pydantic import BaseModel
-from langchain_ollama import ChatOllama
-
-from agents.inc_agent import init_inc_agent
-from agents.model import ResponseAgent
-from agents.task_agent import init_task_agent
-from tasks.loader.excel_loader import load_tasks_from_excel
-
-# Ваш store для create_agent можно оставить, если он нужен агенту
 from langchain_community.storage import RedisStore
-from store.redis import save_agent_result_to_redis, to_jsonable, redis_client
 
 from agents.agent_builder import agent_builder
+from agents.agent_factory import init_inc_agent, init_task_agent
+from store.redis import redis_client
+from tasks.loader.excel_loader import load_tasks_from_excel
 
-session_id = None
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+logger = logging.getLogger(__name__)
 
 
-def init_session():
-    global session_id
-    session_id = str(uuid.uuid4())
+def _read_agent_configs() -> dict:
+    with open("./agents/promts_agent.yaml", "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
 
 
 def _last_message_content(result: dict[str, Any]) -> str:
@@ -34,30 +28,27 @@ def _last_message_content(result: dict[str, Any]) -> str:
     return getattr(last, "content", str(last))
 
 
-### Чтение конфигурации AI агентов из YAML файла
-def read_config_ai_agents() -> dict:
-    with open("./agents/promts_agent.yaml", "r", encoding="utf-8") as file:
-        data = yaml.safe_load(file)
-    return data
+def main() -> None:
+    session_id = str(uuid.uuid4())
+    logger.info("Session started: %s", session_id)
 
-
-if __name__ == "__main__":
-    init_session()
-    ai_agents_configs = read_config_ai_agents()
-
-    store = RedisStore(redis_url="redis://:mystrongpassword@localhost:6379/0")
+    configs = _read_agent_configs()
     task_list = load_tasks_from_excel("sprint_tasks_template_short.xlsx")
+
+    redis_url = (
+        f"redis://:{os.getenv('REDIS_PASSWORD', '')}@"
+        f"{os.getenv('REDIS_HOST', 'localhost')}:"
+        f"{os.getenv('REDIS_PORT', '6379')}/0"
+    )
+    store = RedisStore(redis_url=redis_url)
 
     team_name = "SA"
 
     builder_inc = agent_builder(
         agent=init_inc_agent,
-        prompt=(
-            "Привет, inc_agent! Какие инцидентные задачи ты бы выбрал для работы?\n"
-            f'team_name = "{team_name}"'
-        ),
+        prompt=f"Какие инцидентные задачи взять в работу?\nteam_name = \"{team_name}\"",
         task_list=task_list,
-        config=ai_agents_configs.get("inc_agent", {}),
+        config=configs.get("inc_agent", {}),
         store=store,
         session_id=session_id,
         redis_client=redis_client,
@@ -67,12 +58,9 @@ if __name__ == "__main__":
 
     builder_task = agent_builder(
         agent=init_task_agent,
-        prompt=(
-            "Привет, task_agent! Какие внутренние задачи ты бы выбрал для работы?\n"
-            f'team_name = "{team_name}"'
-        ),
+        prompt=f"Какие внутренние задачи взять в работу?\nteam_name = \"{team_name}\"",
         task_list=task_list,
-        config=ai_agents_configs.get("task_agent", {}),
+        config=configs.get("task_agent", {}),
         store=store,
         session_id=session_id,
         redis_client=redis_client,
@@ -80,33 +68,12 @@ if __name__ == "__main__":
         save_to_redis=True,
     )
 
+    logger.info("inc_agent redis_key: %s", builder_inc["redis_key"])
+    logger.info("inc_agent result: %s", builder_inc["result"])
 
-    inc_agent = builder_inc["agent_instance"]
-    result_inc = builder_inc["result"]
-    redis_key = builder_inc["redis_key"]
-
-
-    task_agent = builder_task["agent_instance"]
-    result_task = builder_task["result"]
-    redis_key_task = builder_task["redis_key"]
+    logger.info("task_agent redis_key: %s", builder_task["redis_key"])
+    logger.info("task_agent result: %s", builder_task["result"])
 
 
-
-    print("=== inc_agent ===")
-    print(inc_agent)
-
-
-    print("\n=== result ===")
-    print(result_inc)
-
-    print("\n=== redis_key ===")
-    print(redis_key)
-
-    print("=== task_agent ===")
-    print(task_agent)
-
-    print("\n=== result ===")
-    print(result_task)
-
-    print("\n=== redis_key ===")
-    print(redis_key_task)
+if __name__ == "__main__":
+    main()
