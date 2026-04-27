@@ -132,6 +132,38 @@ def make_get_project_tasks_tool(sprint_task_list: list[SprintTask], session_id: 
     return get_project_tasks
 
 
+def make_get_quota_tasks_tool(sprint_task_list: list[SprintTask], session_id: str | None = None):
+    @tool
+    def get_quota_tasks(team_name: str, runtime: ToolRuntime) -> str:
+        """Возвращает задачи, идущие по квоте (quota > 0), для команды team_name."""
+        store = runtime.store
+
+        quota_tasks = [
+            task for task in sprint_task_list
+            if task.team == team_name and task.quota is not None and task.quota > 0
+        ]
+
+        if store is not None and session_id is not None:
+            key = f"{session_id}:quota:{team_name}:last_run"
+            value = json.dumps({
+                "status": "ok",
+                "tasks_count": len(quota_tasks),
+                "tasks": str([task.model_dump() for task in quota_tasks]),
+            }, ensure_ascii=False)
+            store.mset([(key, value)])
+
+        if not quota_tasks:
+            return f"Нет квотных задач для команды {team_name}."
+
+        return f"Квотные задачи для команды {team_name}:\n" + "\n".join(
+            f"- Номер задачи: {task.task_id}\n  Описание: {task.title}\n  SP: {task.sp}"
+            f"\n  Квота: {task.quota}\n  Приоритет: {task.priority}\n  Бизнес-ценность: {task.business_value}"
+            for task in quota_tasks
+        )
+
+    return get_quota_tasks
+
+
 def make_calculate_sp_tool(sprint_task_list: list[SprintTask]):
     task_index = {task.task_id: task for task in sprint_task_list}
 
