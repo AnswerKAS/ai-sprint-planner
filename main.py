@@ -7,7 +7,7 @@ import yaml
 from langchain_community.storage import RedisStore
 
 from agents.agent_builder import agent_builder
-from agents.agent_factory import init_inc_agent, init_task_agent
+from agents.agent_factory import init_inc_agent, init_project_agent, init_task_agent
 from store.redis import redis_client
 from tasks.loader.excel_loader import load_tasks_from_excel
 
@@ -68,11 +68,26 @@ def main() -> None:
         save_to_redis=True,
     )
 
+    builder_project = agent_builder(
+        agent=init_project_agent,
+        prompt=f"Какие проектные задачи взять в работу?\nteam_name = \"{team_name}\"",
+        task_list=task_list,
+        config=configs.get("project_agent", {}),
+        store=store,
+        session_id=session_id,
+        redis_client=redis_client,
+        team_name=team_name,
+        save_to_redis=True,
+    )
+
     logger.info("inc_agent redis_key: %s", builder_inc["redis_key"])
     logger.info("inc_agent result: %s", builder_inc["result"])
 
     logger.info("task_agent redis_key: %s", builder_task["redis_key"])
     logger.info("task_agent result: %s", builder_task["result"])
+
+    logger.info("project_agent redis_key: %s", builder_project["redis_key"])
+    logger.info("project_agent result: %s", builder_project["result"])
 
 
 if __name__ == "__main__":

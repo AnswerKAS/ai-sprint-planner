@@ -71,7 +71,7 @@ def save_agent_result_to_redis(
     redis_client.set(
         redis_key,
         json.dumps(payload, ensure_ascii=False, indent=2),
-        ex=300,
+        ex=500,
     )
     logger.debug("Saved agent result to Redis: %s", redis_key)
     return redis_key

@@ -4,13 +4,14 @@ from langchain.agents import create_agent
 from langchain_community.storage import RedisStore
 from langchain_ollama import ChatOllama
 
-from agents.model import AgentContext, ResponseAgent
+from agents.model import ResponseAgent
 from agents.tools.common_tools import (
     get_team_capacity,
     get_team_members,
+    make_calculate_sp_tool,
     make_get_inc_tasks_tool,
+    make_get_project_tasks_tool,
     make_get_task_tasks_tool,
-    sum_sp_from_agent_response,
 )
 from tasks.model import SprintTask
 
@@ -20,31 +21,36 @@ def _create_sprint_agent(
     input_task_list: list[SprintTask],
     store: RedisStore,
     task_tool_factory: Callable,
+    session_id: str | None = None,
 ):
-    sys_prompt = config["system_prompt"] + "\n\n" + config["limitations"]
+    # /no_think отключает thinking-режим Qwen3 на уровне промпта
+    sys_prompt = "/no_think\n\n" + config["system_prompt"] + "\n\n" + config["limitations"]
     model_name = config.get("model", "qwen3:4b-instruct")
     agent_name = config.get("name", "agent")
 
     return create_agent(
-        model=ChatOllama(model=model_name, temperature=0),
+        model=ChatOllama(model=model_name, temperature=0, reasoning=False),
         tools=[
             get_team_capacity,
             get_team_members,
-            sum_sp_from_agent_response,
-            task_tool_factory(input_task_list),
+            task_tool_factory(input_task_list, session_id),
+            make_calculate_sp_tool(input_task_list),
         ],
         system_prompt=sys_prompt,
         response_format=ResponseAgent,
         name=agent_name,
         debug=False,
         store=store,
-        context_schema=AgentContext,
     )
 
 
-def init_inc_agent(config: dict, input_task_list: list[SprintTask], store: RedisStore):
-    return _create_sprint_agent(config, input_task_list, store, make_get_inc_tasks_tool)
+def init_inc_agent(config: dict, input_task_list: list[SprintTask], store: RedisStore, session_id: str | None = None):
+    return _create_sprint_agent(config, input_task_list, store, make_get_inc_tasks_tool, session_id)
 
 
-def init_task_agent(config: dict, input_task_list: list[SprintTask], store: RedisStore):
-    return _create_sprint_agent(config, input_task_list, store, make_get_task_tasks_tool)
+def init_task_agent(config: dict, input_task_list: list[SprintTask], store: RedisStore, session_id: str | None = None):
+    return _create_sprint_agent(config, input_task_list, store, make_get_task_tasks_tool, session_id)
+
+
+def init_project_agent(config: dict, input_task_list: list[SprintTask], store: RedisStore, session_id: str | None = None):
+    return _create_sprint_agent(config, input_task_list, store, make_get_project_tasks_tool, session_id)

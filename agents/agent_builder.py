@@ -2,7 +2,6 @@ from typing import Any, Callable, Optional
 
 from langchain_community.storage import RedisStore
 
-from agents.model import AgentContext
 from store.redis import save_agent_result_to_redis
 from tasks.model import SprintTask
 
@@ -21,7 +20,7 @@ def agent_builder(
     **kwargs,
 ) -> dict[str, Any]:
     agent_name = config.get("name", "agent")
-    agent_instance = agent(config, task_list, store, **kwargs)
+    agent_instance = agent(config, task_list, store, session_id=session_id, **kwargs)
 
     payload = {
         "messages": [
@@ -32,11 +31,7 @@ def agent_builder(
         ]
     }
 
-    invoke_kwargs: dict[str, Any] = {}
-    if session_id is not None:
-        invoke_kwargs["context"] = AgentContext(session_id=session_id)
-
-    result = agent_instance.invoke(payload, **invoke_kwargs)
+    result = agent_instance.invoke(payload)
 
     redis_key = None
     if save_to_redis:

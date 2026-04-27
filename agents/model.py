@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from dataclasses import dataclass
+
 
 class Task(BaseModel):
     task_id: str = Field(description="Уникальный идентификатор задачи для каждой команды.")
@@ -11,11 +11,4 @@ class Task(BaseModel):
 class ResponseAgent(BaseModel):
     team_name: str = Field(description="Название команды")
     task_list: list[Task] = Field(description="Список задач, которые выбрал агент, для команды")
-    summary: str = Field(description="Краткое резюме по выбранным задачам. Возможно ли их взять в работу вместе?")
-
-
-    
-
-@dataclass
-class AgentContext:
-    session_id: str
+    summary: str = Field(default="", description="Краткое резюме по выбранным задачам. Возможно ли их взять в работу вместе?")
