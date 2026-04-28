@@ -39,7 +39,7 @@ def get_team_members(team_name: str) -> str:
 
 def make_get_inc_tasks_tool(sprint_task_list: list[SprintTask], session_id: str | None = None):
     @tool
-    def get_inc_tasks_temas(team_name: str, runtime: ToolRuntime) -> str:
+    def get_inc_tasks_teams(team_name: str, runtime: ToolRuntime) -> str:
         """Возвращает инцидентные задачи для команды team_name."""
         store = runtime.store
 
@@ -53,7 +53,7 @@ def make_get_inc_tasks_tool(sprint_task_list: list[SprintTask], session_id: str 
             value = json.dumps({
                 "status": "ok",
                 "tasks_count": len(inc_tasks),
-                "tasks": str([task.model_dump() for task in inc_tasks]),
+                "tasks": [task.model_dump() for task in inc_tasks],
             }, ensure_ascii=False)
             store.mset([(key, value)])
 
@@ -61,11 +61,12 @@ def make_get_inc_tasks_tool(sprint_task_list: list[SprintTask], session_id: str 
             return f"Нет инцидентных задач для команды {team_name}."
 
         return f"Инцидентные задачи для команды {team_name}:\n" + "\n".join(
-            f"- Номер задач: {task.task_id}\n  Описание: {task.title}\n  SP: {task.sp}"
+            f"- {task.task_id}: {task.title}"
+            f"\n  SP: {task.sp} | Приоритет: {task.priority} | Эскалации: {task.escalation_count} | Бизнес-ценность: {task.business_value}"
             for task in inc_tasks
         )
 
-    return get_inc_tasks_temas
+    return get_inc_tasks_teams
 
 
 def make_get_task_tasks_tool(sprint_task_list: list[SprintTask], session_id: str | None = None):
@@ -84,7 +85,7 @@ def make_get_task_tasks_tool(sprint_task_list: list[SprintTask], session_id: str
             value = json.dumps({
                 "status": "ok",
                 "tasks_count": len(task_tasks),
-                "tasks": str([task.model_dump() for task in task_tasks]),
+                "tasks": [task.model_dump() for task in task_tasks],
             }, ensure_ascii=False)
             store.mset([(key, value)])
 
@@ -92,7 +93,8 @@ def make_get_task_tasks_tool(sprint_task_list: list[SprintTask], session_id: str
             return f"Нет внутренних задач для команды {team_name}."
 
         return f"Внутренние задачи для команды {team_name}:\n" + "\n".join(
-            f"- Номер задач: {task.task_id}\n  Описание: {task.title}\n  SP: {task.sp}"
+            f"- {task.task_id}: {task.title}"
+            f"\n  SP: {task.sp} | Приоритет: {task.priority} | RICE: {task.rice} | Бизнес-ценность: {task.business_value}"
             for task in task_tasks
         )
 
@@ -115,7 +117,7 @@ def make_get_project_tasks_tool(sprint_task_list: list[SprintTask], session_id: 
             value = json.dumps({
                 "status": "ok",
                 "tasks_count": len(project_tasks),
-                "tasks": str([task.model_dump() for task in project_tasks]),
+                "tasks": [task.model_dump() for task in project_tasks],
             }, ensure_ascii=False)
             store.mset([(key, value)])
 
@@ -123,9 +125,8 @@ def make_get_project_tasks_tool(sprint_task_list: list[SprintTask], session_id: 
             return f"Нет проектных задач для команды {team_name}."
 
         return f"Проектные задачи для команды {team_name}:\n" + "\n".join(
-            f"- Номер задачи: {task.task_id}\n  Описание: {task.title}\n  SP: {task.sp}"
-            f"\n  Приоритет: {task.priority}\n  Бизнес-ценность: {task.business_value}"
-            f"\n  RICE: {task.rice}\n  Эскалации: {task.escalation_count}"
+            f"- {task.task_id}: {task.title}"
+            f"\n  SP: {task.sp} | Приоритет: {task.priority} | RICE: {task.rice} | Бизнес-ценность: {task.business_value} | Стадия: {task.stage} | Эскалации: {task.escalation_count}"
             for task in project_tasks
         )
 
@@ -148,7 +149,7 @@ def make_get_quota_tasks_tool(sprint_task_list: list[SprintTask], session_id: st
             value = json.dumps({
                 "status": "ok",
                 "tasks_count": len(quota_tasks),
-                "tasks": str([task.model_dump() for task in quota_tasks]),
+                "tasks": [task.model_dump() for task in quota_tasks],
             }, ensure_ascii=False)
             store.mset([(key, value)])
 
@@ -156,8 +157,8 @@ def make_get_quota_tasks_tool(sprint_task_list: list[SprintTask], session_id: st
             return f"Нет квотных задач для команды {team_name}."
 
         return f"Квотные задачи для команды {team_name}:\n" + "\n".join(
-            f"- Номер задачи: {task.task_id}\n  Описание: {task.title}\n  SP: {task.sp}"
-            f"\n  Квота: {task.quota}\n  Приоритет: {task.priority}\n  Бизнес-ценность: {task.business_value}"
+            f"- {task.task_id}: {task.title}"
+            f"\n  SP: {task.sp} | Квота: {task.quota} | Приоритет: {task.priority} | Бизнес-ценность: {task.business_value}"
             for task in quota_tasks
         )
 

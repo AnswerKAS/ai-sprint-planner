@@ -4,11 +4,7 @@ from langchain.agents import create_agent
 from langchain_community.storage import RedisStore
 from langchain_ollama import ChatOllama
 
-from agents.model import ResponseAgent
 from agents.tools.common_tools import (
-    get_team_capacity,
-    get_team_members,
-    make_calculate_sp_tool,
     make_get_inc_tasks_tool,
     make_get_project_tasks_tool,
     make_get_quota_tasks_tool,
@@ -32,13 +28,9 @@ def _create_sprint_agent(
     return create_agent(
         model=ChatOllama(model=model_name, temperature=0, reasoning=False),
         tools=[
-            get_team_capacity,
-            get_team_members,
             task_tool_factory(input_task_list, session_id),
-            make_calculate_sp_tool(input_task_list),
         ],
         system_prompt=sys_prompt,
-        response_format=ResponseAgent,
         name=agent_name,
         debug=False,
         store=store,
@@ -68,7 +60,6 @@ def init_quota_agent(config: dict, input_task_list: list[SprintTask], store: Red
             make_get_quota_tasks_tool(input_task_list, session_id),
         ],
         system_prompt=sys_prompt,
-        response_format=ResponseAgent,
         name=agent_name,
         debug=False,
         store=store,

@@ -8,7 +8,7 @@ from langchain_community.storage import RedisStore
 
 from agents.agent_builder import agent_builder
 from agents.agent_factory import init_inc_agent, init_project_agent, init_quota_agent, init_task_agent
-from store.redis import redis_client
+from store.redis import REDIS_TTL, redis_client
 from tasks.loader.excel_loader import load_tasks_from_excel
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -40,7 +40,7 @@ def main() -> None:
         f"{os.getenv('REDIS_HOST', 'localhost')}:"
         f"{os.getenv('REDIS_PORT', '6379')}/0"
     )
-    store = RedisStore(redis_url=redis_url)
+    store = RedisStore(redis_url=redis_url, ttl=REDIS_TTL)
 
     team_name = "SA"
 
