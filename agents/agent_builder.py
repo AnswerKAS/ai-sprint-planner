@@ -1,37 +1,32 @@
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from langchain_community.storage import RedisStore
 
+from agents.logging_utils import log_agent_messages
 from store.redis import save_agent_result_to_redis
 from tasks.model import SprintTask
 
 
-def agent_builder(
+async def agent_builder(
     agent: Callable,
     *,
     prompt: str,
     task_list: list[SprintTask],
     config: dict,
-    store: Optional[RedisStore] = None,
-    session_id: Optional[str] = None,
+    store: RedisStore | None = None,
+    session_id: str | None = None,
     redis_client: Any = None,
-    team_name: Optional[str] = None,
+    team_name: str | None = None,
     save_to_redis: bool = False,
     **kwargs,
 ) -> dict[str, Any]:
     agent_name = config.get("name", "agent")
     agent_instance = agent(config, task_list, store, session_id=session_id, **kwargs)
 
-    payload = {
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ]
-    }
+    payload = {"messages": [{"role": "user", "content": prompt}]}
 
-    result = agent_instance.invoke(payload)
+    result = await agent_instance.ainvoke(payload)
+    log_agent_messages(result.get("messages", []), agent_name)
 
     redis_key = None
     if save_to_redis:

@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sprint Planning Report — 2026-04-29 13:13:42</title>
+  
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --muted: #64748b;
+    --accent: #3b82f6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); padding: 24px; line-height: 1.6; }
+  h1 { font-size: 1.8em; font-weight: 700; margin-bottom: 4px; }
+  h2 { font-size: 1.4em; font-weight: 700; margin: 32px 0 16px; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+  h3 { font-size: 1.1em; font-weight: 600; margin: 20px 0 10px; }
+  h4 { font-size: 0.95em; font-weight: 600; margin: 12px 0 6px; color: var(--muted); }
+  .meta { color: var(--muted); font-size: 0.85em; margin-bottom: 28px; }
+
+  /* TOC */
+  .toc { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px;
+         padding: 16px 24px; margin-bottom: 32px; display: inline-block; }
+  .toc a { color: var(--accent); text-decoration: none; display: block; padding: 2px 0; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Summary cards */
+  .cards { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px;
+          padding: 16px 20px; min-width: 160px; flex: 1; }
+  .card .label { font-size: 0.78em; color: var(--muted); font-weight: 600;
+                 text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .card .value { font-size: 1.5em; font-weight: 700; }
+  .card .sub { font-size: 0.82em; color: var(--muted); margin-top: 2px; }
+
+  /* Progress bar */
+  .progress-wrap { background: #e2e8f0; border-radius: 999px; height: 14px;
+                   margin-bottom: 24px; overflow: hidden; }
+  .progress-bar { height: 100%; border-radius: 999px; transition: width 0.4s; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 0.88em; margin-bottom: 24px; }
+  thead tr { background: #f1f5f9; }
+  th { padding: 10px 12px; text-align: left; font-weight: 600; color: var(--muted);
+       border-bottom: 2px solid var(--border); white-space: nowrap; }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody tr:hover { background: #f8fafc; }
+  tfoot td { font-weight: 700; border-top: 2px solid var(--border); background: #f1f5f9; }
+  .task-id { font-family: monospace; font-size: 0.9em; color: var(--accent); font-weight: 600; }
+  .num { text-align: right; }
+
+  /* Collapsible details */
+  details { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px;
+            background: var(--card-bg); overflow: hidden; }
+  details > summary {
+    padding: 12px 16px; font-weight: 600; cursor: pointer; user-select: none;
+    list-style: none; display: flex; align-items: center; gap: 8px;
+    background: #f8fafc;
+  }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::before { content: "▶"; font-size: 0.7em; color: var(--muted);
+                               transition: transform 0.2s; display: inline-block; }
+  details[open] > summary::before { transform: rotate(90deg); }
+  details > summary:hover { background: #f1f5f9; }
+  .details-body { padding: 16px; border-top: 1px solid var(--border); }
+
+  /* Pre / agent output */
+  pre { background: #0f172a; color: #e2e8f0; padding: 14px 16px; border-radius: 8px;
+        font-size: 0.82em; overflow-x: auto; white-space: pre-wrap; word-break: break-word;
+        line-height: 1.5; margin: 0; }
+
+  /* Iteration timeline */
+  .timeline { position: relative; padding-left: 32px; }
+  .timeline::before { content: ""; position: absolute; left: 10px; top: 0; bottom: 0;
+                       width: 2px; background: var(--border); }
+  .tl-item { position: relative; margin-bottom: 20px; }
+  .tl-dot { position: absolute; left: -26px; top: 6px; width: 14px; height: 14px;
+             border-radius: 50%; background: var(--accent); border: 2px solid #fff;
+             box-shadow: 0 0 0 2px var(--border); }
+  .tl-dot.accepted { background: #16a34a; }
+  .tl-dot.rejected { background: #dc2626; }
+
+  /* Verdict chip */
+  .verdict { display: inline-block; padding: 2px 10px; border-radius: 999px;
+             font-size: 0.78em; font-weight: 700; margin-left: 8px; }
+  .verdict.ok { background: #dcfce7; color: #166534; }
+  .verdict.fail { background: #fee2e2; color: #991b1b; }
+
+  /* Feedback box */
+  .feedback-box { background: #fff7ed; border-left: 4px solid #f97316;
+                  padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 0.88em; margin: 8px 0; }
+  .consult-box { background: #f0f9ff; border-left: 4px solid #38bdf8;
+                 padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 0.88em; margin: 8px 0; }
+
+  footer { margin-top: 48px; text-align: center; color: var(--muted); font-size: 0.82em; }
+  .section-anchor { scroll-margin-top: 20px; }
+</style>
+
+</head>
+<body>
+<h1>Sprint Planning Report</h1>
+<p class="meta">Сформирован: 2026-04-29 13:13:42</p>
+
+<div class="toc"><strong>Команды</strong>
+  <a href="#team-Python">Python — 82.2% загрузки</a>
+  <a href="#team-SA">SA — 110.0% загрузки</a>
+  <a href="#team-Meth">Meth — 26.7% загрузки</a>
+</div>
+
+
+<section id="team-Python" class="section-anchor">
+  <h2>Команда: Python</h2>
+  <p class="meta">Session: <code>a9ead840-88ed-46c4-a812-d7ec24feeb50</code></p>
+  
+<div class="cards">
+  <div class="card">
+    <div class="label">Ёмкость команды</div>
+    <div class="value">45.0 SP</div>
+  </div>
+  <div class="card">
+    <div class="label">Взято в спринт</div>
+    <div class="value">37.0 SP</div>
+  </div>
+  <div class="card">
+    <div class="label">Загрузка</div>
+    <div class="value" style="color:#d97706">82.2%</div>
+    <div class="sub">цель: 90–110%</div>
+  </div>
+  <div class="card">
+    <div class="label">Итераций</div>
+    <div class="value">7</div>
+    <div class="sub">план принят</div>
+  </div>
+  <div class="card">
+    <div class="label">Задач в спринте</div>
+    <div class="value">4</div>
+  </div>
+</div>
+<div class="progress-wrap">
+  <div class="progress-bar" style="width:74.7%;background:#d97706"></div>
+</div>
+
+  
+<h3>Задачи спринта</h3>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Task ID</th>
+      <th>Название</th>
+      <th>Категория</th>
+      <th>Приоритет</th>
+      <th class="num">SP</th>
+      <th class="num">RICE</th>
+      <th class="num">Бизнес-ценность</th>
+      <th class="num">Эскалации</th>
+      <th>Стадия</th>
+      <th>Заказчик</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="num">1</td>
+      <td><span class="task-id">PY-101</span></td>
+      <td>Исправить критичный дефект авторизации</td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">incident</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>8.0</strong></td>
+      <td class="num">8000</td>
+      <td class="num">10</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">2</span></td>
+      <td>support</td>
+      <td>Дистанционный бизнес</td>
+    </tr>
+    <tr>
+      <td class="num">2</td>
+      <td><span class="task-id">PY-104</span></td>
+      <td>Согласовать процесса согласования</td>
+      <td><span style="background:#7c3aed;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">project</span></td>
+      <td><span style="background:#d97706;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">medium</span></td>
+      <td class="num"><strong>5.0</strong></td>
+      <td class="num">2500</td>
+      <td class="num">7</td>
+      <td class="num">—</td>
+      <td>design</td>
+      <td>Розничный бизнес</td>
+    </tr>
+    <tr>
+      <td class="num">3</td>
+      <td><span class="task-id">PY-103</span></td>
+      <td>Настроить валидации заявок</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#ea580c;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">high</span></td>
+      <td class="num"><strong>3.0</strong></td>
+      <td class="num">800</td>
+      <td class="num">9</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">3</span></td>
+      <td>development</td>
+      <td>Платежные сервисы</td>
+    </tr>
+    <tr>
+      <td class="num">4</td>
+      <td><span class="task-id">PY-102</span></td>
+      <td>Реализовать API расчета SLA</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#ea580c;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">high</span></td>
+      <td class="num"><strong>21.0</strong></td>
+      <td class="num">3000</td>
+      <td class="num">9</td>
+      <td class="num">—</td>
+      <td>development</td>
+      <td>Методология IT-сервисов</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="5">ИТОГО</td>
+      <td class="num" style="color:#d97706">37.0</td>
+      <td colspan="5">из 45.0 SP &nbsp;
+        <span style="color:#d97706;font-weight:700">(82.2%)</span>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+  <h3>Рекомендации агентов-специалистов</h3>
+
+<details>
+  <summary>Инцидентные задачи (inc_agent)</summary>
+  <div class="details-body">
+    <pre>PY-101 [SP: 8.0 | Приоритет: critical | Эскалации: 2 | Бизнес-ценность: 10.0]: критический дефект авторизации с высокой бизнес-ценностью и эскалациями, требует немедленного внимания</pre>
+  </div>
+</details>
+
+<details>
+  <summary>Внутренние задачи (task_agent)</summary>
+  <div class="details-body">
+    <pre>PY-102 [SP: 21.0 | Приоритет: high | RICE: 300-0 | Эскалации: 0 | Бизнес-ценность: 9.0]: высокий RICE, важная функциональность для SLA  
+PY-103 [SP: 3.0 | Приоритет: high | RICE: 800.0 | Эскалации: 3 | Бизнес-ценность: 9.0]: высокий RICE, есть эскалации — требует внимания</pre>
+  </div>
+</details>
+
+<details>
+  <summary>Проектные задачи (project_agent)</summary>
+  <div class="details-body">
+    <pre>PY-104 [SP: 5.0 | Приоритет: medium | RICE: 2500.0 | Бизнес-ценность: 7.0 | Стадия: design | Эскалации: 0]: высокий RICE, активная стадия проектирования</pre>
+  </div>
+</details>
+
+<details>
+  <summary>Квотные задачи (quota_agent)</summary>
+  <div class="details-body">
+    <pre>Для команды Python нет квотных задач.</pre>
+  </div>
+</details>
+  
+<h3>Ход планирования (итерации критика)</h3>
+<details open>
+  <summary>Показать все итерации (7)</summary>
+  <div class="details-body">
+    <div class="timeline">
+      
+<div class="tl-item">
+  <div class="tl-dot rejected"></div>
+  <details>
+    <summary>
+      Итерация 1
+      <span class="verdict fail">ОТКЛОНЕНО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">37.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>PY-101 [SP: 8.0 | Категория: incident | Приоритет: critical]
+PY-104 [SP: 5.0 | Категория: project | Приоритет: medium]
+PY-103 [SP: 3.0 | Категория: task | Приоритет: high]
+PY-102 [SP: 21.0 | Категория: task | Приоритет: high]
+
+ИТОГО: 37.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 82.2%</pre>
+      <h4>Замечание валидатора</h4><div class="feedback-box">Суммарный SP=37.0 ниже целевого 40.5 SP (90% от ёмкости 45.0). Добавь задачи из кандидатов.</div>
+      
+    </div>
+  </details>
+</div>
+<div class="tl-item">
+  <div class="tl-dot rejected"></div>
+  <details>
+    <summary>
+      Итерация 2
+      <span class="verdict fail">ОТКЛОНЕНО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">37.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>PY-101 [SP: 8.0 | Категория: incident | Приоритет: critical]
+PY-104 [SP: 5.0 | Категория: project | Приоритет: medium]
+PY-103 [SP: 3.0 | Категория: task | Приоритет: high]
+PY-102 [SP: 21.0 | Категория: task | Приоритет: high]
+
+ИТОГО: 37.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 82.2%</pre>
+      <h4>Замечание валидатора</h4><div class="feedback-box">Суммарный SP=37.0 ниже целевого 40.5 SP (90% от ёмкости 45.0). Добавь задачи из кандидатов.</div>
+      
+    </div>
+  </details>
+</div>
+<div class="tl-item">
+  <div class="tl-dot rejected"></div>
+  <details>
+    <summary>
+      Итерация 3
+      <span class="verdict fail">ОТКЛОНЕНО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">37.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>PY-101 [SP: 8.0 | Категория: incident | Приоритет: critical]
+PY-104 [SP: 5.0 | Категория: project | Приоритет: medium]
+PY-103 [SP: 3.0 | Категория: task | Приоритет: high]
+PY-102 [SP: 21.0 | Категория: task | Приоритет: high]
+
+ИТОГО: 37.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 82.2%</pre>
+      <h4>Замечание валидатора</h4><div class="feedback-box">Суммарный SP=37.0 ниже целевого 40.5 SP (90% от ёмкости 45.0). Добавь задачи из кандидатов.</div>
+      
+    </div>
+  </details>
+</div>
+<div class="tl-item">
+  <div class="tl-dot rejected"></div>
+  <details>
+    <summary>
+      Итерация 4
+      <span class="verdict fail">ОТКЛОНЕНО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">37.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>PY-101 [SP: 8.0 | Категория: incident | Приоритет: critical]
+PY-104 [SP: 5.0 | Категория: project | Приоритет: medium]
+PY-103 [SP: 3.0 | Категория: task | Приоритет: high]
+PY-102 [SP: 21.0 | Категория: task | Приоритет: high]
+
+ИТОГО: 37.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 82.2%</pre>
+      <h4>Замечание валидатора</h4><div class="feedback-box">Суммарный SP=37.0 ниже целевого 40.5 SP (90% от ёмкости 45.0). Добавь задачи из кандидатов.</div>
+      
+    </div>
+  </details>
+</div>
+<div class="tl-item">
+  <div class="tl-dot rejected"></div>
+  <details>
+    <summary>
+      Итерация 5
+      <span class="verdict fail">ОТКЛОНЕНО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">37.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>PY-101 [SP: 8.0 | Категория: incident | Приоритет: critical]
+PY-104 [SP: 5.0 | Категория: project | Приоритет: medium]
+PY-103 [SP: 3.0 | Категория: task | Приоритет: high]
+PY-102 [SP: 21.0 | Категория: task | Приоритет: high]
+
+ИТОГО: 37.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 82.2%</pre>
+      <h4>Замечание валидатора</h4><div class="feedback-box">Суммарный SP=37.0 ниже целевого 40.5 SP (90% от ёмкости 45.0). Добавь задачи из кандидатов.</div>
+      
+    </div>
+  </details>
+</div>
+<div class="tl-item">
+  <div class="tl-dot rejected"></div>
+  <details>
+    <summary>
+      Итерация 6
+      <span class="verdict fail">ОТКЛОНЕНО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">37.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>PY-101 [SP: 8.0 | Категория: incident | Приоритет: critical]
+PY-104 [SP: 5.0 | Категория: project | Приоритет: medium]
+PY-103 [SP: 3.0 | Категория: task | Приоритет: high]
+PY-102 [SP: 21.0 | Категория: task | Приоритет: high]
+
+ИТОГО: 37.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 82.2%</pre>
+      <h4>Замечание валидатора</h4><div class="feedback-box">Суммарный SP=37.0 ниже целевого 40.5 SP (90% от ёмкости 45.0). Добавь задачи из кандидатов.</div>
+      
+    </div>
+  </details>
+</div>
+<div class="tl-item">
+  <div class="tl-dot accepted"></div>
+  <details>
+    <summary>
+      Итерация 7
+      <span class="verdict ok">ПРИНЯТО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">37.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>PY-101 [SP: 8.0 | Категория: incident | Приоритет: critical]
+PY-104 [SP: 5.0 | Категория: project | Приоритет: medium]
+PY-103 [SP: 3.0 | Категория: task | Приоритет: high]
+PY-102 [SP: 21.0 | Категория: task | Приоритет: high]
+
+ИТОГО: 37.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 82.2%</pre>
+      
+      
+    </div>
+  </details>
+</div>
+    </div>
+  </div>
+</details>
+
+</section>
+<hr style="border:none;border-top:1px solid #e2e8f0;margin:40px 0">
+
+
+<section id="team-SA" class="section-anchor">
+  <h2>Команда: SA</h2>
+  <p class="meta">Session: <code>6d09a221-2b74-4f82-8483-de9e95719a54</code></p>
+  
+<div class="cards">
+  <div class="card">
+    <div class="label">Ёмкость команды</div>
+    <div class="value">45.0 SP</div>
+  </div>
+  <div class="card">
+    <div class="label">Взято в спринт</div>
+    <div class="value">49.5 SP</div>
+  </div>
+  <div class="card">
+    <div class="label">Загрузка</div>
+    <div class="value" style="color:#16a34a">110.0%</div>
+    <div class="sub">цель: 90–110%</div>
+  </div>
+  <div class="card">
+    <div class="label">Итераций</div>
+    <div class="value">1</div>
+    <div class="sub">план принят</div>
+  </div>
+  <div class="card">
+    <div class="label">Задач в спринте</div>
+    <div class="value">20</div>
+  </div>
+</div>
+<div class="progress-wrap">
+  <div class="progress-bar" style="width:100.0%;background:#16a34a"></div>
+</div>
+
+  
+<h3>Задачи спринта</h3>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Task ID</th>
+      <th>Название</th>
+      <th>Категория</th>
+      <th>Приоритет</th>
+      <th class="num">SP</th>
+      <th class="num">RICE</th>
+      <th class="num">Бизнес-ценность</th>
+      <th class="num">Эскалации</th>
+      <th>Стадия</th>
+      <th>Заказчик</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="num">1</td>
+      <td><span class="task-id">SA-20231</span> <span style="color:#059669;font-size:0.8em;font-weight:600">[Q]</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L11</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>2.0</strong></td>
+      <td class="num">2500</td>
+      <td class="num">8</td>
+      <td class="num">—</td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">2</td>
+      <td><span class="task-id">SA-20230</span> <span style="color:#059669;font-size:0.8em;font-weight:600">[Q]</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L10</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#ea580c;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">high</span></td>
+      <td class="num"><strong>3.0</strong></td>
+      <td class="num">2500</td>
+      <td class="num">8</td>
+      <td class="num">—</td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">3</td>
+      <td><span class="task-id">SA-201</span> <span style="color:#059669;font-size:0.8em;font-weight:600">[Q]</span></td>
+      <td>Системный анализ магистрального проекта L12</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#ea580c;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">high</span></td>
+      <td class="num"><strong>15.0</strong></td>
+      <td class="num">2500</td>
+      <td class="num">8</td>
+      <td class="num">—</td>
+      <td>analysis</td>
+      <td>Корпоративный блок</td>
+    </tr>
+    <tr>
+      <td class="num">4</td>
+      <td><span class="task-id">SA-20232</span> <span style="color:#059669;font-size:0.8em;font-weight:600">[Q]</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L12</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>1.0</strong></td>
+      <td class="num">2500</td>
+      <td class="num">8</td>
+      <td class="num">—</td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">5</td>
+      <td><span class="task-id">SA-20244</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L24</td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">incident</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>0.5</strong></td>
+      <td class="num">—</td>
+      <td class="num">8</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">12</span></td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">6</td>
+      <td><span class="task-id">SA-20243</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L23</td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">incident</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>0.5</strong></td>
+      <td class="num">—</td>
+      <td class="num">8</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">11</span></td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">7</td>
+      <td><span class="task-id">SA-20242</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L22</td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">incident</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>0.5</strong></td>
+      <td class="num">—</td>
+      <td class="num">8</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">10</span></td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">8</td>
+      <td><span class="task-id">SA-20241</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L21</td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">incident</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>0.5</strong></td>
+      <td class="num">—</td>
+      <td class="num">8</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">9</span></td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">9</td>
+      <td><span class="task-id">SA-20240</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L20</td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">incident</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>0.5</strong></td>
+      <td class="num">—</td>
+      <td class="num">8</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">8</span></td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">10</td>
+      <td><span class="task-id">SA-203</span></td>
+      <td>Доработать валидации заявок</td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">incident</span></td>
+      <td><span style="background:#ea580c;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">high</span></td>
+      <td class="num"><strong>5.0</strong></td>
+      <td class="num">3000</td>
+      <td class="num">10</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">2</span></td>
+      <td>testing</td>
+      <td>Дистанционный бизнес</td>
+    </tr>
+    <tr>
+      <td class="num">11</td>
+      <td><span class="task-id">SA-204</span></td>
+      <td>Провести анализ обработки инцидентов</td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">incident</span></td>
+      <td><span style="background:#ea580c;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">high</span></td>
+      <td class="num"><strong>4.0</strong></td>
+      <td class="num">3000</td>
+      <td class="num">10</td>
+      <td class="num">—</td>
+      <td>support</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">12</td>
+      <td><span class="task-id">SA-20239</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L19</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>1.0</strong></td>
+      <td class="num">—</td>
+      <td class="num">8</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">7</span></td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">13</td>
+      <td><span class="task-id">SA-20238</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L18</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>1.0</strong></td>
+      <td class="num">—</td>
+      <td class="num">8</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">6</span></td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">14</td>
+      <td><span class="task-id">SA-20237</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L17</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>1.0</strong></td>
+      <td class="num">—</td>
+      <td class="num">8</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">5</span></td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">15</td>
+      <td><span class="task-id">SA-20236</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L16</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>1.0</strong></td>
+      <td class="num">—</td>
+      <td class="num">8</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">4</span></td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">16</td>
+      <td><span class="task-id">SA-20235</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L15</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>1.0</strong></td>
+      <td class="num">—</td>
+      <td class="num">8</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">3</span></td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">17</td>
+      <td><span class="task-id">SA-20234</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L14</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>1.0</strong></td>
+      <td class="num">—</td>
+      <td class="num">8</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">2</span></td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">18</td>
+      <td><span class="task-id">SA-20233</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L13</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">critical</span></td>
+      <td class="num"><strong>1.0</strong></td>
+      <td class="num">—</td>
+      <td class="num">8</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">1</span></td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">19</td>
+      <td><span class="task-id">SA-20227</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L7</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#ea580c;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">high</span></td>
+      <td class="num"><strong>8.0</strong></td>
+      <td class="num">2500</td>
+      <td class="num">8</td>
+      <td class="num">—</td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+    <tr>
+      <td class="num">20</td>
+      <td><span class="task-id">SA-20228</span></td>
+      <td>Системный анализ магистрального проекта ЦД. L8</td>
+      <td><span style="background:#2563eb;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">task</span></td>
+      <td><span style="background:#ea580c;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">high</span></td>
+      <td class="num"><strong>2.0</strong></td>
+      <td class="num">2500</td>
+      <td class="num">8</td>
+      <td class="num">—</td>
+      <td>analysis</td>
+      <td>Операционный центр</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="5">ИТОГО</td>
+      <td class="num" style="color:#16a34a">49.5</td>
+      <td colspan="5">из 45.0 SP &nbsp;
+        <span style="color:#16a34a;font-weight:700">(110.0%)</span>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+  <h3>Рекомендации агентов-специалистов</h3>
+
+<details>
+  <summary>Инцидентные задачи (inc_agent)</summary>
+  <div class="details-body">
+    <pre>SA-20243 [SP: 0.5 | Приоритет: critical | Эскалации: 11 | Бизнес-ценность: 8.0]: критический инцидент с наибольшим количеством эскалаций, высокая важность для стабильности системы  
+SA-20244 [SP: 0.5 | Приоритет: critical | Эскалации: 12 | Бизнес-ценность: 8.0]: критический инцидент с максимальным количеством эскалаций, требует немедленного вмешательства  
+SA-20242 [SP: 0.5 | Приоритет: critical | Эскалации: 10 | Бизнес-ценность: 8.0]: критический инцидент с высоким уровнем эскалаций, важен для системной стабильности  
+SA-20241 [SP: 0.5 | Приоритет: critical | Эскалации: 9 | Бизнес-ценность: 8.0]: критический инцидент с значительным количеством эскалаций, требует оперативного вмешательства  
+SA-20240 [SP: 0.5 | Приоритет: critical | Эскалации: 8 | Бизнес-ценность: 8.0]: критический инцидент с эскалациями, важен для системной целостности  
+SA-204 [SP: 4.0 | Приоритет: high | Эскалации: 0 | Бизнес-ценность: 10.0]: высокий приоритет, анализ обработки инцидентов, важен для улучшения процессов  
+SA-203 [SP: 5.0 | Приоритет: high | Эскалации: 2 | Бизнес-ценность: 10.0]: высокий приоритет, доработка валидаций заявок, влияет на качество данных и процессов</pre>
+  </div>
+</details>
+
+<details>
+  <summary>Внутренние задачи (task_agent)</summary>
+  <div class="details-body">
+    <pre>SA-201 [SP: 15.0 | Приоритет: high | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: высокий RICE, важный системный анализ магистрального проекта L12  
+SA-20221 [SP: 12.0 | Приоритет: medium | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: высокий RICE, ключевой анализ проекта ЦД. L1  
+SA-20222 [SP: 12.0 | Приоритет: medium | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: высокий RICE, ключевой анализ проекта ЦД. L2  
+SA-20223 [SP: 12.0 | Приоритет: medium | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: высокий RICE, ключевой анализ проекта ЦД. L3  
+SA-20224 [SP: 12.0 | Приоритет: low | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: высокий RICE, хотя приоритет низкий, но значимый анализ  
+SA-20225 [SP: 34.0 | Приоритет: medium | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: высокий RICE и высокий SP, важный анализ проекта ЦД. L5  
+SA-20226 [SP: 8.0 | Приоритет: low | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: высокий RICE, хотя приоритет низкий, но значимый анализ  
+SA-20227 [SP: 8.0 | Приоритет: high | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: высокий RICE и приоритет high, важный анализ проекта ЦД. L7  
+SA-20228 [SP: 2.0 | Приоритет: high | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: высокий RICE и приоритет high, критически важный анализ  
+SA-20229 [SP: 2.0 | Приоритет: high | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: высокий RICE и приоритет high, критически важный анализ  
+SA-20230 [SP: 3.0 | Приоритет: high | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: высокий RICE и приоритет high, важный анализ проекта ЦД. L10  
+SA-20231 [SP: 2.0 | Приоритет: critical | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: критический приоритет, высокий RICE, важный анализ  
+SA-20232 [SP: 1.0 | Приоритет: critical | RICE: 2500.0 | Эскалации: 0 | Бизнес-ценность: 8.0]: критический приоритет, высокий RICE, важный анализ  
+SA-20233 [SP: 1.0 | Приоритет: critical | RICE: None | Эскалации: 1 | Бизнес-ценность: 8.0]: критический приоритет, есть эскалация, но RICE отсутствует  
+SA-20234 [SP: 1.0 | Приоритет: critical | RICE: None | Эскалации: 2 | Бизнес-ценность: 8.0]: критический приоритет, есть эскалации, но RICE отсутствует  
+SA-20235 [SP: 1.0 | Приоритет: critical | RICE: None | Эскалации: 3 | Бизнес-ценность: 8.0]: критический приоритет, есть эскалации, но RICE отсутствует  
+SA-20236 [SP: 1.0 | Приоритет: critical | RICE: None | Эскалации: 4 | Бизнес-ценность: 8.0]: критический приоритет, есть эскалации, но RICE отсутствует  
+SA-20237 [SP: 1.0 | Приоритет: critical | RICE: None | Эскалации: 5 | Бизнес-ценность: 8.0]: критический приоритет, есть эскалации, но RICE отсутствует  
+SA-20238 [SP: 1.0 | Приоритет: critical | RICE: None | Эскалации: 6 | Бизнес-ценность: 8.0]: критический приоритет, есть эскалации, но RICE отсутствует  
+SA-20239 [SP: 1.0 | Приоритет: critical | RICE: None | Эскалации: 7 | Бизнес-ценность: 8.0]: критический приоритет, наибольшее количество эскалаций, но RICE отсутствует</pre>
+  </div>
+</details>
+
+<details>
+  <summary>Проектные задачи (project_agent)</summary>
+  <div class="details-body">
+    <pre>SA-202 [SP: 34 | Приоритет: high | RICE: 12000 | Бизнес-ценность: 5 | Стадия: design | Эскалации: 1]: высокий RICE, активная стадия разработки (design), высокая бизнес-ценность</pre>
+  </div>
+</details>
+
+<details>
+  <summary>Квотные задачи (quota_agent)</summary>
+  <div class="details-body">
+    <pre>SA-201 [SP: 15.0 | Квота: 1.0 | Приоритет: high]: квотная задача, обязательна к включению в спринт
+SA-20230 [SP: 3.0 | Квота: 1.0 | Приоритет: high]: квотная задача, обязательна к включению в спринт
+SA-20231 [SP: 2.0 | Квота: 1.0 | Приоритет: critical]: квотная задача, обязательна к включению в спринт
+SA-20232 [SP: 1.0 | Квота: 1.0 | Приоритет: critical]: квотная задача, обязательна к включению в спринт</pre>
+  </div>
+</details>
+  
+<h3>Ход планирования (итерации критика)</h3>
+<details open>
+  <summary>Показать все итерации (1)</summary>
+  <div class="details-body">
+    <div class="timeline">
+      
+<div class="tl-item">
+  <div class="tl-dot accepted"></div>
+  <details>
+    <summary>
+      Итерация 1
+      <span class="verdict ok">ПРИНЯТО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">49.5 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>SA-20231 [SP: 2.0 | Категория: task | Приоритет: critical]
+SA-20230 [SP: 3.0 | Категория: task | Приоритет: high]
+SA-201 [SP: 15.0 | Категория: task | Приоритет: high]
+SA-20232 [SP: 1.0 | Категория: task | Приоритет: critical]
+SA-20244 [SP: 0.5 | Категория: incident | Приоритет: critical]
+SA-20243 [SP: 0.5 | Категория: incident | Приоритет: critical]
+SA-20242 [SP: 0.5 | Категория: incident | Приоритет: critical]
+SA-20241 [SP: 0.5 | Категория: incident | Приоритет: critical]
+SA-20240 [SP: 0.5 | Категория: incident | Приоритет: critical]
+SA-203 [SP: 5.0 | Категория: incident | Приоритет: high]
+SA-204 [SP: 4.0 | Категория: incident | Приоритет: high]
+SA-20239 [SP: 1.0 | Категория: task | Приоритет: critical]
+SA-20238 [SP: 1.0 | Категория: task | Приоритет: critical]
+SA-20237 [SP: 1.0 | Категория: task | Приоритет: critical]
+SA-20236 [SP: 1.0 | Категория: task | Приоритет: critical]
+SA-20235 [SP: 1.0 | Категория: task | Приоритет: critical]
+SA-20234 [SP: 1.0 | Категория: task | Приоритет: critical]
+SA-20233 [SP: 1.0 | Категория: task | Приоритет: critical]
+SA-20227 [SP: 8.0 | Категория: task | Приоритет: high]
+SA-20228 [SP: 2.0 | Категория: task | Приоритет: high]
+
+ИТОГО: 49.5 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 110.0%</pre>
+      
+      
+    </div>
+  </details>
+</div>
+    </div>
+  </div>
+</details>
+
+</section>
+<hr style="border:none;border-top:1px solid #e2e8f0;margin:40px 0">
+
+
+<section id="team-Meth" class="section-anchor">
+  <h2>Команда: Meth</h2>
+  <p class="meta">Session: <code>6a848aa5-cf4a-48cc-a88c-46b030239cd1</code></p>
+  
+<div class="cards">
+  <div class="card">
+    <div class="label">Ёмкость команды</div>
+    <div class="value">45.0 SP</div>
+  </div>
+  <div class="card">
+    <div class="label">Взято в спринт</div>
+    <div class="value">12.0 SP</div>
+  </div>
+  <div class="card">
+    <div class="label">Загрузка</div>
+    <div class="value" style="color:#6b7280">26.7%</div>
+    <div class="sub">цель: 90–110%</div>
+  </div>
+  <div class="card">
+    <div class="label">Итераций</div>
+    <div class="value">7</div>
+    <div class="sub">план принят</div>
+  </div>
+  <div class="card">
+    <div class="label">Задач в спринте</div>
+    <div class="value">1</div>
+  </div>
+</div>
+<div class="progress-wrap">
+  <div class="progress-bar" style="width:24.3%;background:#6b7280"></div>
+</div>
+
+  
+<h3>Задачи спринта</h3>
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Task ID</th>
+      <th>Название</th>
+      <th>Категория</th>
+      <th>Приоритет</th>
+      <th class="num">SP</th>
+      <th class="num">RICE</th>
+      <th class="num">Бизнес-ценность</th>
+      <th class="num">Эскалации</th>
+      <th>Стадия</th>
+      <th>Заказчик</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="num">1</td>
+      <td><span class="task-id">M-302</span></td>
+      <td>Согласовать методику измерения SLA</td>
+      <td><span style="background:#7c3aed;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">project</span></td>
+      <td><span style="background:#ea580c;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.78em;font-weight:600;white-space:nowrap">high</span></td>
+      <td class="num"><strong>12.0</strong></td>
+      <td class="num">5000</td>
+      <td class="num">9</td>
+      <td class="num"><span style="color:#dc2626;font-weight:600">2</span></td>
+      <td>uat</td>
+      <td>Методология IT-сервисов</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="5">ИТОГО</td>
+      <td class="num" style="color:#6b7280">12.0</td>
+      <td colspan="5">из 45.0 SP &nbsp;
+        <span style="color:#6b7280;font-weight:700">(26.7%)</span>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+
+  <h3>Рекомендации агентов-специалистов</h3>
+
+<details>
+  <summary>Инцидентные задачи (inc_agent)</summary>
+  <div class="details-body">
+    <pre>Для команды &quot;Meth&quot; нет инцидентных задач.</pre>
+  </div>
+</details>
+
+<details>
+  <summary>Внутренние задачи (task_agent)</summary>
+  <div class="details-body">
+    <pre>Для команды &quot;Meth&quot; нет внутренних задач. В списке задач не найдено ни одной задачи с категорией &quot;task&quot;. Следовательно, не может быть выбрано ни одной внутренней задачи для выполнения.</pre>
+  </div>
+</details>
+
+<details>
+  <summary>Проектные задачи (project_agent)</summary>
+  <div class="details-body">
+    <pre>M-302 [SP: 12 | Приоритет: high | RICE: 5000 | Бизнес-ценность: 9 | Стадия: uat | Эскалации: 2]: высокий RICE, активная стадия UAT, высокая бизнес-ценность и эскалации</pre>
+  </div>
+</details>
+
+<details>
+  <summary>Квотные задачи (quota_agent)</summary>
+  <div class="details-body">
+    <pre>Для команды Meth нет квотных задач.</pre>
+  </div>
+</details>
+  
+<h3>Ход планирования (итерации критика)</h3>
+<details open>
+  <summary>Показать все итерации (7)</summary>
+  <div class="details-body">
+    <div class="timeline">
+      
+<div class="tl-item">
+  <div class="tl-dot rejected"></div>
+  <details>
+    <summary>
+      Итерация 1
+      <span class="verdict fail">ОТКЛОНЕНО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">12.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>M-302 [SP: 12.0 | Категория: project | Приоритет: high]
+
+ИТОГО: 12.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 26.7%</pre>
+      <h4>Замечание валидатора</h4><div class="feedback-box">Суммарный SP=12.0 ниже целевого 40.5 SP (90% от ёмкости 45.0). Добавь задачи из кандидатов.</div>
+      
+    </div>
+  </details>
+</div>
+<div class="tl-item">
+  <div class="tl-dot rejected"></div>
+  <details>
+    <summary>
+      Итерация 2
+      <span class="verdict fail">ОТКЛОНЕНО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">12.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>M-302 [SP: 12.0 | Категория: project | Приоритет: high]
+
+ИТОГО: 12.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 26.7%</pre>
+      <h4>Замечание валидатора</h4><div class="feedback-box">Суммарный SP=12.0 ниже целевого 40.5 SP (90% от ёмкости 45.0). Добавь задачи из кандидатов.</div>
+      
+    </div>
+  </details>
+</div>
+<div class="tl-item">
+  <div class="tl-dot rejected"></div>
+  <details>
+    <summary>
+      Итерация 3
+      <span class="verdict fail">ОТКЛОНЕНО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">12.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>M-302 [SP: 12.0 | Категория: project | Приоритет: high]
+
+ИТОГО: 12.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 26.7%</pre>
+      <h4>Замечание валидатора</h4><div class="feedback-box">Суммарный SP=12.0 ниже целевого 40.5 SP (90% от ёмкости 45.0). Добавь задачи из кандидатов.</div>
+      
+    </div>
+  </details>
+</div>
+<div class="tl-item">
+  <div class="tl-dot rejected"></div>
+  <details>
+    <summary>
+      Итерация 4
+      <span class="verdict fail">ОТКЛОНЕНО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">12.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>M-302 [SP: 12.0 | Категория: project | Приоритет: high]
+
+ИТОГО: 12.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 26.7%</pre>
+      <h4>Замечание валидатора</h4><div class="feedback-box">Суммарный SP=12.0 ниже целевого 40.5 SP (90% от ёмкости 45.0). Добавь задачи из кандидатов.</div>
+      
+    </div>
+  </details>
+</div>
+<div class="tl-item">
+  <div class="tl-dot rejected"></div>
+  <details>
+    <summary>
+      Итерация 5
+      <span class="verdict fail">ОТКЛОНЕНО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">12.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>M-302 [SP: 12.0 | Категория: project | Приоритет: high]
+
+ИТОГО: 12.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 26.7%</pre>
+      <h4>Замечание валидатора</h4><div class="feedback-box">Суммарный SP=12.0 ниже целевого 40.5 SP (90% от ёмкости 45.0). Добавь задачи из кандидатов.</div>
+      
+    </div>
+  </details>
+</div>
+<div class="tl-item">
+  <div class="tl-dot rejected"></div>
+  <details>
+    <summary>
+      Итерация 6
+      <span class="verdict fail">ОТКЛОНЕНО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">12.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>M-302 [SP: 12.0 | Категория: project | Приоритет: high]
+
+ИТОГО: 12.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 26.7%</pre>
+      <h4>Замечание валидатора</h4><div class="feedback-box">Суммарный SP=12.0 ниже целевого 40.5 SP (90% от ёмкости 45.0). Добавь задачи из кандидатов.</div>
+      
+    </div>
+  </details>
+</div>
+<div class="tl-item">
+  <div class="tl-dot accepted"></div>
+  <details>
+    <summary>
+      Итерация 7
+      <span class="verdict ok">ПРИНЯТО</span>
+      &nbsp;<span style="color:var(--muted);font-weight:400;font-size:0.88em">12.0 SP</span>
+    </summary>
+    <div class="details-body">
+      <h4>План критика</h4>
+      <pre>M-302 [SP: 12.0 | Категория: project | Приоритет: high]
+
+ИТОГО: 12.0 SP | ЁМКОСТЬ: 45.0 SP | ЗАГРУЗКА: 26.7%</pre>
+      
+      
+    </div>
+  </details>
+</div>
+    </div>
+  </div>
+</details>
+
+</section>
+<hr style="border:none;border-top:1px solid #e2e8f0;margin:40px 0">
+
+
+<footer>
+  Sprint Planning Report &middot; 2026-04-29 13:13:42 &middot; AI Sprint Planner
+</footer>
+</body>
+</html>

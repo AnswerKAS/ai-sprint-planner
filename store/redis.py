@@ -44,6 +44,81 @@ def save_agent_result_to_redis(
     return redis_key
 
 
+def save_critic_iteration_to_redis(
+    redis_client: redis.Redis,
+    session_id: str,
+    team_name: str,
+    iteration: int,
+    plan: str,
+    feedback: str,
+    validated: bool,
+    total_sp: float,
+) -> str:
+    payload = {
+        "session_id": session_id,
+        "team_name": team_name,
+        "iteration": iteration,
+        "plan": plan,
+        "feedback": feedback,
+        "validated": validated,
+        "total_sp": total_sp,
+    }
+    redis_key = f"critic_agent:iteration:{iteration}:{session_id}"
+    redis_client.set(
+        redis_key,
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        ex=REDIS_TTL,
+    )
+    logger.debug("Saved critic iteration to Redis: %s", redis_key)
+    return redis_key
+
+
+def save_critic_consultation_to_redis(
+    redis_client: redis.Redis,
+    session_id: str,
+    team_name: str,
+    iteration: int,
+    consultation: str,
+) -> str:
+    payload = {
+        "session_id": session_id,
+        "team_name": team_name,
+        "iteration": iteration,
+        "consultation": consultation,
+    }
+    redis_key = f"critic_agent:consultation:{iteration}:{session_id}"
+    redis_client.set(
+        redis_key,
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        ex=REDIS_TTL,
+    )
+    logger.debug("Saved critic consultation to Redis: %s", redis_key)
+    return redis_key
+
+
+def save_critic_final_to_redis(
+    redis_client: redis.Redis,
+    session_id: str,
+    team_name: str,
+    plan: str,
+    total_iterations: int,
+) -> str:
+    payload = {
+        "session_id": session_id,
+        "team_name": team_name,
+        "total_iterations": total_iterations,
+        "result": plan,
+    }
+    redis_key = f"critic_agent:result:{session_id}"
+    redis_client.set(
+        redis_key,
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        ex=REDIS_TTL,
+    )
+    logger.debug("Saved critic final result to Redis: %s", redis_key)
+    return redis_key
+
+
 def create_redis_client() -> redis.Redis:
     return redis.Redis(
         host=os.getenv("REDIS_HOST", "localhost"),

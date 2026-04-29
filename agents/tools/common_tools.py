@@ -6,7 +6,6 @@ from langgraph.prebuilt import ToolRuntime
 from tasks.model import SprintTask
 
 
-
 TEAM_CAPACITY: dict[str, float] = {
     "Python": 45.0,
     "SA": 45.0,
@@ -18,23 +17,6 @@ TEAM_MEMBERS: dict[str, int] = {
     "SA": 3,
     "Meth": 3,
 }
-
-
-
-
-@tool
-def get_team_capacity(team_name: str) -> str:
-    """Возвращает емкость команды в SP."""
-    capacity = TEAM_CAPACITY.get(team_name, 0)
-    return f"{team_name}: {capacity} SP"
-
-
-@tool
-def get_team_members(team_name: str) -> str:
-    """Возвращает количество сотрудников в команде."""
-    members = TEAM_MEMBERS.get(team_name, 0)
-    return f"{team_name}: {members} сотрудника(ов)"
-
 
 
 def make_get_inc_tasks_tool(sprint_task_list: list[SprintTask], session_id: str | None = None):
@@ -94,7 +76,8 @@ def make_get_task_tasks_tool(sprint_task_list: list[SprintTask], session_id: str
 
         return f"Внутренние задачи для команды {team_name}:\n" + "\n".join(
             f"- {task.task_id}: {task.title}"
-            f"\n  SP: {task.sp} | Приоритет: {task.priority} | RICE: {task.rice} | Бизнес-ценность: {task.business_value}"
+            f"\n  SP: {task.sp} | Приоритет: {task.priority} | RICE: {task.rice}"
+            f" | Эскалации: {task.escalation_count} | Бизнес-ценность: {task.business_value}"
             for task in task_tasks
         )
 
@@ -163,71 +146,3 @@ def make_get_quota_tasks_tool(sprint_task_list: list[SprintTask], session_id: st
         )
 
     return get_quota_tasks
-
-
-def make_calculate_sp_tool(sprint_task_list: list[SprintTask]):
-    task_index = {task.task_id: task for task in sprint_task_list}
-
-    @tool
-    def calculate_selected_sp(team_name: str, task_ids: list[str]) -> str:
-        """
-        Суммирует SP по выбранным задачам и сравнивает с ёмкостью команды.
-        Вызывай этот инструмент ПЕРЕД финальным ответом, чтобы убедиться,
-        что суммарный SP не превышает ёмкость команды.
-
-        Args:
-            team_name: название команды (например "SA", "Python", "Meth")
-            task_ids: список идентификаторов выбранных задач
-
-        Возвращает JSON с полями:
-          total_sp       — суммарный SP выбранных задач
-          capacity       — ёмкость команды в SP
-          remaining_sp   — оставшаяся ёмкость после выбранных задач
-          is_over        — true если суммарный SP превышает ёмкость
-          verdict        — текстовое заключение
-          breakdown      — SP по каждой задаче
-          not_found      — task_id, которые не найдены в списке задач
-        """
-        capacity = TEAM_CAPACITY.get(team_name, 0.0)
-
-        total_sp = 0.0
-        breakdown = []
-        not_found = []
-
-        for task_id in task_ids:
-            task = task_index.get(task_id)
-            if task is None:
-                not_found.append(task_id)
-                continue
-            total_sp += task.sp
-            breakdown.append({"task_id": task_id, "sp": task.sp, "title": task.title})
-
-        total_sp = round(total_sp, 2)
-        remaining_sp = round(capacity - total_sp, 2)
-        is_over = total_sp > capacity
-
-        if is_over:
-            verdict = (
-                f"ПРЕВЫШЕНИЕ ЁМКОСТИ: суммарный SP={total_sp} превышает ёмкость команды {team_name}={capacity} SP "
-                f"на {round(total_sp - capacity, 2)} SP. Необходимо убрать часть задач."
-            )
-        else:
-            verdict = (
-                f"В РАМКАХ ЁМКОСТИ: суммарный SP={total_sp} не превышает ёмкость команды {team_name}={capacity} SP. "
-                f"Остаток: {remaining_sp} SP."
-            )
-
-        result: dict = {
-            "total_sp": total_sp,
-            "capacity": capacity,
-            "remaining_sp": remaining_sp,
-            "is_over": is_over,
-            "verdict": verdict,
-            "breakdown": breakdown,
-        }
-        if not_found:
-            result["not_found"] = not_found
-
-        return json.dumps(result, ensure_ascii=False)
-
-    return calculate_selected_sp
